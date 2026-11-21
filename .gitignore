@@ -1,0 +1,20 @@
+# Служебные директории, конфиги среды и кэш
+.context/
+.licenses/
+.gitconfig
+.gitmodules
+AGENTS.md
+AGENTS_SECURITY.md
+happy.toml
+mcp.toml
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.env
+.env.*
+~$*
+
+# Личные переписки и черновые сообщения (не публикуются в репозитории)
+Переписка с Артуром Фоминым.md
+Первое сообщение Максиму Патрушеву.txt
