@@ -1,0 +1,4 @@
+# Generated documents and images must not undergo text/line-ending conversion.
+*.pdf binary
+*.png binary
+*.webp binary
