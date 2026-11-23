@@ -10,4 +10,5 @@
 - `riboflavin-market-*.png` (4 графика) — строятся скриптом `scripts/build_riboflavin_report.py` по данным `docs/riboflavin-market-data.json` (WITS/UN Comtrade, FEFAC, VEGA).
 - `riboflavin-volume.png` — расчёт объёма культуры на 1 кг выделенного B2 при сценарной степени извлечения 80%.
 - `riboflavin-sampling.png` — схема параллельного отбора проб для контроля материального баланса.
+- `riboflavin-denovo-pathway.png` — схема биосинтеза рибофлавина de novo в дрожжах с указанием генов *C. famata* и *K. phaffii* и ключевых мишеней DBTL.
 - `riboflavin-pathway.png` — схема последовательных ферментативных превращений B2 → FMN → FAD на базе 2D-структур.

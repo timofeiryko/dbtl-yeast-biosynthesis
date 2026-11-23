@@ -29,7 +29,7 @@ INK = '#1E282D'
 MUTED = '#5F6C72'
 TEAL = '#1F634E'
 RULE = '#C9D8D0'
-WIDTH = A4[0] - 38 * mm
+WIDTH = A4[0] - 37 * mm
 MARKET_DATA = ROOT / 'docs/riboflavin-market-data.json'
 
 
@@ -137,9 +137,73 @@ def sampling_figure():
     plt.close(fig)
 
 
+def denovo_pathway_figure():
+    fig, ax = plt.subplots(figsize=(10.5, 4.4), dpi=180, facecolor='white')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+
+    def node(x, y, text, bg='#F2F6F4', edge='#BFD3C7', bold=False, fs=10.2):
+        ax.text(x, y, text, ha='center', va='center', fontsize=fs,
+                fontweight='bold' if bold else 'normal', color=INK,
+                bbox=dict(boxstyle='round,pad=.48', facecolor=bg, edgecolor=edge, lw=1.15))
+
+    def gene(x, y, text, key=False):
+        bg = '#D9ECE3' if key else '#F7F9F8'
+        edge = TEAL if key else '#C5D2CC'
+        ax.text(x, y, text, ha='center', va='center', fontsize=8.8,
+                fontweight='bold' if key else 'normal', color=TEAL if key else '#3D4C53',
+                bbox=dict(boxstyle='round,pad=.28', facecolor=bg, edgecolor=edge, lw=1.0))
+
+    def arrow(start, end, color=TEAL, style='->'):
+        ax.annotate('', xy=end, xytext=start,
+                    arrowprops=dict(arrowstyle=style, color=color, lw=1.6))
+
+    # Top title banner / stoichiometry
+    ax.text(.01, .95, 'Пуриновая ветвь (1 × GTP)', fontsize=10.5, fontweight='bold', color=TEAL, ha='left')
+    ax.text(.01, .39, 'Пентозофосфатная ветвь (2 × Ру-5-Ф)', fontsize=10.5, fontweight='bold', color='#4C7290', ha='left')
+    ax.text(.99, .95, 'Активатор SEF1 (C. famata) — координированное усиление пути',
+            fontsize=9.2, color=TEAL, ha='right',
+            bbox=dict(boxstyle='round,pad=.32', facecolor='#EBF4EF', edgecolor=TEAL, lw=0.9))
+
+    # Purine branch (top row)
+    node(.09, .77, 'GTP', bg='#EBF3F7', edge='#9BB8CD', bold=True)
+    node(.33, .77, 'DARPP')
+    node(.58, .77, 'ArPP → ArP')
+    arrow((.145, .77), (.27, .77))
+    gene(.208, .855, 'RIB1 (ключ.)', key=True)
+    arrow((.39, .77), (.505, .77))
+    gene(.448, .855, 'Cf: RIB2, RIB3\nKp: RIB7, RIB2')
+
+    # Pentose phosphate branch (bottom row)
+    node(.14, .21, 'Рибулозо-5-фосфат', bg='#EBF3F7', edge='#9BB8CD', bold=True)
+    node(.54, .21, 'DHBP', bold=True)
+    arrow((.265, .21), (.485, .21), color='#4C7290')
+    gene(.375, .295, 'DHBP-синтаза\nCf: RIB6 · Kp: RIB3', key=True)
+
+    # Convergence to DMRL and Riboflavin
+    node(.74, .49, 'DMRL\n(люмазин)', bold=True)
+    node(.925, .49, 'Рибофлавин\n(B2)', bg='#D5EAE0', edge=TEAL, bold=True, fs=10.8)
+
+    arrow((.635, .72), (.715, .565))
+    arrow((.595, .25), (.70, .425), color='#4C7290')
+    gene(.61, .50, 'Люмазинсинтаза\nCf: RIB5 · Kp: RIB4')
+
+    arrow((.80, .49), (.86, .49))
+    gene(.83, .635, 'B2-синтаза\nCf: RIB7 · Kp: RIB5', key=True)
+
+    # Stoichiometry footer
+    ax.text(.5, .04, 'Стехиометрия: 1 GTP + 2 рибулозо-5-фосфата → 1 рибофлавин (B2)   |   Зелёным выделены приоритетные мишени усиления в DBTL',
+            ha='center', va='center', fontsize=9.2, color=MUTED)
+    fig.tight_layout()
+    fig.savefig(ASSETS / 'riboflavin-denovo-pathway.png')
+    plt.close(fig)
+
+
 def figures():
     market_figures()
     sampling_figure()
+    denovo_pathway_figure()
     with PILImage.open(ASSETS / 'candida-kinetics-2022.png') as original:
         original.crop((0, 3600, original.width, original.height)).save(
             ASSETS / 'candida-kinetics-2022-ef.png')
@@ -194,38 +258,38 @@ def markup(text):
     return ''.join(rendered)
 
 
-BODY = ParagraphStyle('body', fontName='Sans', fontSize=9.6, leading=13.8,
-                      textColor=colors.HexColor(INK), spaceAfter=5.5)
-SUBTITLE = ParagraphStyle('subtitle', parent=BODY, fontSize=9.5, leading=13,
-                          textColor=colors.HexColor(MUTED), spaceAfter=10)
+BODY = ParagraphStyle('body', fontName='Sans', fontSize=9.3, leading=12.9,
+                      textColor=colors.HexColor(INK), spaceAfter=4.4)
+SUBTITLE = ParagraphStyle('subtitle', parent=BODY, fontSize=9.3, leading=12.5,
+                          textColor=colors.HexColor(MUTED), spaceAfter=8.5)
 H1 = ParagraphStyle('title', parent=BODY, fontName='SansBold', fontSize=20,
                     leading=25, spaceAfter=6)
-H2 = ParagraphStyle('section', parent=BODY, fontName='SansBold', fontSize=14.2,
-                    leading=18.5, textColor=colors.HexColor(TEAL),
-                    spaceBefore=15, spaceAfter=6.5, keepWithNext=True)
+H2 = ParagraphStyle('section', parent=BODY, fontName='SansBold', fontSize=14.0,
+                    leading=18.0, textColor=colors.HexColor(TEAL),
+                    spaceBefore=13, spaceAfter=5.5, keepWithNext=True)
 H2_TOP = ParagraphStyle('section_top', parent=H2, spaceBefore=0)
-H3 = ParagraphStyle('subhead', parent=BODY, fontName='SansBold', fontSize=11.0,
-                    leading=15, textColor=colors.HexColor(INK),
-                    spaceBefore=10, spaceAfter=4.5, keepWithNext=True)
+H3 = ParagraphStyle('subhead', parent=BODY, fontName='SansBold', fontSize=10.6,
+                    leading=14.0, textColor=colors.HexColor(INK),
+                    spaceBefore=7.5, spaceAfter=3.5, keepWithNext=True)
 TOC_TITLE = ParagraphStyle('toc_title', parent=BODY, fontName='SansBold', fontSize=11.5,
                            leading=15, textColor=colors.HexColor(INK),
                            spaceBefore=6, spaceAfter=5, keepWithNext=True)
 TOC_ITEM = ParagraphStyle('toc_item', parent=BODY, fontSize=9.3, leading=12.8, spaceAfter=0)
 TOC_PAGE = ParagraphStyle('toc_page', parent=TOC_ITEM, alignment=TA_RIGHT,
                           textColor=colors.HexColor(MUTED))
-CELL = ParagraphStyle('cell', parent=BODY, fontSize=8.1, leading=10.8, spaceAfter=0)
+CELL = ParagraphStyle('cell', parent=BODY, fontSize=7.9, leading=10.2, spaceAfter=0)
 CELL_HEAD = ParagraphStyle('cell_head', parent=CELL, fontName='SansBold',
                            textColor=colors.HexColor(INK))
-CAPTION = ParagraphStyle('caption', parent=BODY, fontSize=8.4, leading=11.8,
-                         textColor=colors.HexColor(MUTED), spaceAfter=7.5)
-SMALL = ParagraphStyle('small', parent=BODY, fontSize=8.2, leading=11.6, spaceAfter=4.0)
-BULLET = ParagraphStyle('bullet', parent=BODY, leftIndent=11, firstLineIndent=-8, spaceAfter=3.8)
+CAPTION = ParagraphStyle('caption', parent=BODY, fontSize=8.2, leading=11.1,
+                         textColor=colors.HexColor(MUTED), spaceAfter=5.5)
+SMALL = ParagraphStyle('small', parent=BODY, fontSize=8.1, leading=11.2, spaceAfter=3.5)
+BULLET = ParagraphStyle('bullet', parent=BODY, leftIndent=11, firstLineIndent=-8, spaceAfter=2.8)
 
 
 class Report(BaseDocTemplate):
     def __init__(self, filename):
-        super().__init__(str(filename), pagesize=A4, leftMargin=19 * mm,
-                         rightMargin=19 * mm, topMargin=17 * mm, bottomMargin=17 * mm,
+        super().__init__(str(filename), pagesize=A4, leftMargin=18.5 * mm,
+                         rightMargin=18.5 * mm, topMargin=15.5 * mm, bottomMargin=15.5 * mm,
                          title='Рибофлавин в дрожжах: от воспроизведения базового процесса к оптимизации DBTL',
                          author='DBTL project')
         self.pages = {}
@@ -296,14 +360,10 @@ def story(text, pages):
         elif line.startswith('## '):
             if first_section:
                 result += _build_toc(headings, pages)
-                result.append(PageBreak())
                 first_section = False
+            result.append(PageBreak())
             section += 1
-            is_refs = line[3:].startswith('13.')
-            if is_refs:
-                result.append(PageBreak())
-            style = H2_TOP if (section == 1 or is_refs) else H2
-            heading = Paragraph(markup(line[3:]), style)
+            heading = Paragraph(markup(line[3:]), H2_TOP)
             heading.section_key = f'section-{section}'
             heading.section_title = line[3:]
             result.append(heading)
@@ -332,21 +392,24 @@ def story(text, pages):
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#E6EFEA')),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F6F9F7')]),
-                ('LEFTPADDING', (0, 0), (-1, -1), 6.5),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 6.5),
-                ('TOPPADDING', (0, 0), (-1, -1), 4.0),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 4.0),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6.0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6.0),
+                ('TOPPADDING', (0, 0), (-1, -1), 3.4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3.4),
                 ('LINEBELOW', (0, 0), (-1, 0), .6, colors.HexColor('#B4C9BD')),
                 ('LINEBELOW', (0, -1), (-1, -1), .4, colors.HexColor('#DCE5DF')),
             ]))
-            result += [table, Spacer(1, 7)]
+            block = [table, Spacer(1, 5.5)]
+            result.append(KeepTogether(block) if len(rows) <= 6 else table)
+            if len(rows) > 6:
+                result.append(Spacer(1, 5.5))
             continue
         elif line.startswith('!['):
             match = re.fullmatch(r'!\[(.*?)\]\((.*?)\)', line)
             path = (SOURCE.parent / match[2]).resolve()
             with PILImage.open(path) as image:
                 ratio = image.height / image.width
-            image_width = min(WIDTH, 165 * mm / ratio)
+            image_width = min(WIDTH * 0.94, 140 * mm / ratio)
             img_flow = Image(str(path), width=image_width, height=image_width * ratio)
             # Keep figure together with its immediately following caption paragraph.
             lookahead = index + 1
