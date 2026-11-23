@@ -523,7 +523,7 @@ def validate_report(text):
             bounds = re.split('[–-]', item.strip())
             citations.update(range(int(bounds[0]), int(bounds[-1]) + 1))
     references = set(map(int, re.findall(r'^\[(\d+)\]', refs_part, re.M)))
-    assert citations == references == set(range(1, 43)), (citations - references, references - citations)
+    assert citations == references == set(range(1, 47)), (citations - references, references - citations)
     assert 'Предложение научному руководителю' not in text
     assert 'Редакция 2' not in text
     with fitz.open(OUT) as doc:
