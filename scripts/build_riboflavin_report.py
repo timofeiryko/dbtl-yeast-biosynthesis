@@ -1,6 +1,7 @@
 """Render the current, single-source Russian report and its evidence-based figures."""
 from html import escape
 from pathlib import Path
+import json
 import re
 
 import fitz
@@ -11,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
-    BaseDocTemplate, Frame, Image, PageBreak, PageTemplate, Paragraph,
+    BaseDocTemplate, Frame, Image, KeepTogether, PageBreak, PageTemplate, Paragraph,
     Spacer, Table, TableStyle,
 )
 
@@ -26,9 +27,116 @@ SCRATCH = ROOT / '.context/riboflavin-report'
 INK = '#202B30'
 TEAL = '#236852'
 WIDTH = A4[0] - 40 * mm
+MARKET_DATA = ROOT / 'docs/riboflavin-market-data.json'
+
+
+def market_figures():
+    data = json.loads(MARKET_DATA.read_text(encoding='utf-8'))
+    plt.rcParams.update({'font.size': 12, 'axes.labelcolor': INK,
+                         'text.color': INK, 'axes.spines.top': False,
+                         'axes.spines.right': False})
+    rows = data['fefac_regional_shares']['rows']
+    fig, ax = plt.subplots(figsize=(10, 3.7), dpi=180)
+    positions = list(range(len(rows)))
+    for offset, key, label, color in [(-.18, 'capacity_pct', 'Мощности', TEAL),
+                                      (.18, 'production_pct', 'Выпуск', '#88A6BE')]:
+        bars = ax.bar([p+offset for p in positions], [r[key] for r in rows],
+                      width=.33, label=label, color=color)
+        ax.bar_label(bars, labels=[f'{r[key]}%' for r in rows], padding=4)
+    ax.set_xticks(positions, [r['region'] for r in rows])
+    ax.set_ylim(0, 79)
+    ax.set_ylabel('Доля мирового объёма, %')
+    ax.legend(frameon=False, loc='upper right')
+    fig.tight_layout()
+    fig.savefig(ASSETS / 'riboflavin-market-capacity.png')
+    plt.close(fig)
+
+    rows = data['world_exports_2024']['rows']
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), dpi=180, sharey=True)
+    for ax, key, divisor, label, color in [
+        (axes[0], 'usd_thousand', 1000, 'Экспорт, млн долларов', TEAL),
+        (axes[1], 'kg', 1000, 'Экспорт, тонн', '#88A6BE')]:
+        values = [r[key]/divisor for r in rows]
+        bars = ax.barh(positions := list(range(len(rows))), values, color=color, height=.58)
+        ax.bar_label(bars, labels=[f'{v:,.1f}'.replace(',', ' ') for v in values], padding=4, fontsize=11)
+        ax.set_xlim(0, max(values)*1.28)
+        ax.set_xlabel(label)
+        ax.set_yticks(positions, [r['country'] for r in rows])
+    axes[0].invert_yaxis()
+    fig.tight_layout(w_pad=2)
+    fig.savefig(ASSETS / 'riboflavin-market-exporters.png')
+    plt.close(fig)
+
+    rows = data['china_exports_to_russia']['rows']
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.5), dpi=180)
+    for ax, key, divisor, label, color in [
+        (axes[0], 'kg', 1000, 'Экспорт Китай → РФ, тонн', TEAL),
+        (axes[1], 'usd_thousand', 1000, 'Стоимость, млн долларов', '#88A6BE')]:
+        values = [r[key]/divisor for r in rows]
+        bars = ax.bar([str(r['year']) for r in rows], values, width=.5, color=color)
+        ax.bar_label(bars, labels=[f'{v:.2f}' for v in values], padding=4)
+        ax.set_ylim(0, max(values)*1.23)
+        ax.set_ylabel(label)
+    fig.tight_layout(w_pad=2)
+    fig.savefig(ASSETS / 'riboflavin-market-china-russia.png')
+    plt.close(fig)
+
+    rows = data['vega_price_observations']['rows']
+    fig, ax = plt.subplots(figsize=(10, 3.4), dpi=180)
+    labels = []
+    for y, row in enumerate(rows):
+        fraction = row['assay_pct']/100
+        low, high = row['low']/fraction, row['high']/fraction
+        color = TEAL if row['assay_pct'] == 80 else '#60849F'
+        ax.plot([low, high], [y, y], color=color, lw=7, solid_capstyle='round')
+        ax.plot([low, high], [y, y], '|', color=color, markersize=16)
+        value = f'{low:.1f}' if low == high else f'{low:.1f}–{high:.1f}'
+        ax.text(high+1.2, y, value, va='center', fontsize=11)
+        labels.append(f"{row['period']} · {row['assay_pct']}%")
+    ax.set_yticks(range(len(rows)), labels)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 65)
+    ax.set_ylim(len(rows)-.5, -.5)
+    ax.set_xlabel('Долларов за кг действующего B2, пересчёт по концентрации')
+    ax.grid(axis='x', alpha=.15)
+    fig.tight_layout()
+    fig.savefig(ASSETS / 'riboflavin-market-prices.png')
+    plt.close(fig)
+
+
+def sampling_figure():
+    fig, ax = plt.subplots(figsize=(10, 4.4), dpi=180)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    def box(x, y, text, color='#E5EEE8'):
+        ax.text(x, y, text, ha='center', va='center', fontsize=12,
+                bbox=dict(boxstyle='round,pad=.65', facecolor=color, edgecolor='none'))
+    def arrow(start, end):
+        ax.annotate('', xy=end, xytext=start,
+                    arrowprops=dict(arrowstyle='->', color=TEAL, lw=1.8))
+    box(.5, .87, 'Репрезентативная проба культуры\nИзвестный исходный объём; защита от света')
+    box(.23, .55, 'Аликвота А\nРазделение фаз')
+    box(.78, .55, 'Аликвота Б\nВалидированное полное извлечение')
+    box(.13, .22, 'Жидкая фаза\nРастворённые флавины')
+    box(.43, .22, 'Осадок\nКлетки + кристаллы')
+    box(.78, .22, 'Суммарный B2\nНезависимая проверка баланса')
+    arrow((.39, .77), (.24, .66))
+    arrow((.61, .77), (.77, .66))
+    arrow((.19, .44), (.13, .33))
+    arrow((.29, .44), (.42, .33))
+    arrow((.78, .44), (.78, .33))
+    fig.tight_layout()
+    fig.savefig(ASSETS / 'riboflavin-sampling.png')
+    plt.close(fig)
 
 
 def figures():
+    market_figures()
+    sampling_figure()
+    with PILImage.open(ASSETS / 'candida-kinetics-2022.png') as original:
+        original.crop((0, 3600, original.width, original.height)).save(
+            ASSETS / 'candida-kinetics-2022-ef.png')
     fig = plt.figure(figsize=(11, 3.4), dpi=180, facecolor='white')
     for x, name, label in [(0.02, 'riboflavin', 'Рибофлавин · B2'),
                             (0.34, 'fmn', 'FMN · 5′-фосфат'),
@@ -74,15 +182,15 @@ def markup(text):
     return ''.join(rendered)
 
 
-BODY = ParagraphStyle('body', fontName='Sans', fontSize=10.1, leading=14.8,
-                      textColor=colors.HexColor(INK), spaceAfter=7)
+BODY = ParagraphStyle('body', fontName='Sans', fontSize=9.8, leading=14.2,
+                      textColor=colors.HexColor(INK), spaceAfter=6.5)
 H1 = ParagraphStyle('title', parent=BODY, fontName='SansBold', fontSize=31,
                     leading=39, spaceAfter=20)
 H2 = ParagraphStyle('section', parent=BODY, fontName='SansBold', fontSize=21,
                     leading=27, spaceAfter=16, keepWithNext=True)
 H3 = ParagraphStyle('subhead', parent=BODY, fontName='SansBold', fontSize=12.2,
                     leading=17, spaceBefore=12, spaceAfter=7, keepWithNext=True)
-CELL = ParagraphStyle('cell', parent=BODY, fontSize=8.2, leading=11.3, spaceAfter=0)
+CELL = ParagraphStyle('cell', parent=BODY, fontSize=8.0, leading=10.8, spaceAfter=0)
 SMALL = ParagraphStyle('small', parent=BODY, fontSize=8.5, leading=12.5)
 BULLET = ParagraphStyle('bullet', parent=BODY, leftIndent=11, firstLineIndent=-9)
 
@@ -145,6 +253,8 @@ def story(text, pages):
             heading.section_key = f'section-{section}'
             heading.section_title = line[3:]
             result.append(heading)
+        elif line == '<!-- pagebreak -->':
+            result.append(PageBreak())
         elif line.startswith('### '):
             result.append(Paragraph(markup(line[4:]), H3))
         elif line.startswith('|'):
@@ -165,8 +275,8 @@ def story(text, pages):
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F6F8F7')]),
                 ('LEFTPADDING', (0, 0), (-1, -1), 7),
                 ('RIGHTPADDING', (0, 0), (-1, -1), 7),
-                ('TOPPADDING', (0, 0), (-1, -1), 6.5),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 6.5),
+                ('TOPPADDING', (0, 0), (-1, -1), 4.3),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4.3),
                 ('LINEBELOW', (0, 0), (-1, 0), .5, colors.HexColor('#B9CDC0')),
             ]))
             result += [table, Spacer(1, 10)]
@@ -176,16 +286,19 @@ def story(text, pages):
             path = (SOURCE.parent / match[2]).resolve()
             with PILImage.open(path) as image:
                 ratio = image.height/image.width
-            result += [Image(str(path), width=WIDTH, height=WIDTH*ratio), Spacer(1, 8)]
+            image_width = min(WIDTH, 225*mm/ratio)
+            result += [Image(str(path), width=image_width, height=image_width*ratio), Spacer(1, 8)]
         elif line.startswith('- '):
             result.append(Paragraph('• ' + markup(line[2:]), BULLET))
         else:
             chunks = [line]
-            while index + 1 < len(lines) and lines[index+1].strip() and not lines[index+1].startswith(('#', '|', '- ', '![')):
+            while index + 1 < len(lines) and lines[index+1].strip() and not lines[index+1].startswith(('#', '|', '- ', '![', '<!--')):
                 index += 1
                 chunks.append(lines[index].strip())
             content = ' '.join(chunks)
-            result.append(Paragraph(markup(content), SMALL if re.match(r'^\[\d+\]', content) else BODY))
+            is_reference = re.match(r'^\[\d+\]', content)
+            paragraph = Paragraph(markup(content), SMALL if is_reference else BODY)
+            result.append(KeepTogether([paragraph]) if is_reference else paragraph)
         index += 1
     return result
 
@@ -218,7 +331,7 @@ def render_review():
     draw.text((95, 100), 'DBTL / РИБОФЛАВИН', font=ImageFont.truetype(font, 32), fill=TEAL)
     draw.multiline_text((90, 235), 'Сначала воспроизвести.\nЗатем улучшать.',
                         font=ImageFont.truetype(bold, 83), spacing=20, fill=INK)
-    draw.multiline_text((95, 620), 'Выбор дрожжей • протоколы • аналитика\nТитр + выход + скорость • ресурсы для запуска',
+    draw.multiline_text((95, 620), '5 критериев • B2 и 16 альтернатив • рынок\nВоспроизведение → DBTL → производственная скорость',
                         font=ImageFont.truetype(font, 36), spacing=15, fill=TEAL)
     cover.save(SCRATCH / 'cover.webp')
     links = sum(len(page.get_links()) for page in doc)
@@ -236,7 +349,44 @@ def main():
     final.build(story(text, first.pages))
     if final.pages != first.pages:
         raise RuntimeError('TOC page numbers changed between passes')
+    validate_report(text)
     render_review()
+
+
+def validate_report(text):
+    """Runnable checks: source coverage, market arithmetic and final PDF geometry."""
+    data = json.loads(MARKET_DATA.read_text(encoding='utf-8'))
+    for key in ('capacity_pct', 'production_pct'):
+        assert sum(row[key] for row in data['fefac_regional_shares']['rows']) == 100
+    selected = data['selected_exports_to_russia_2024']['rows']
+    assert sum(row['kg'] for row in selected) == 283667
+    assert abs(sum(row['usd_thousand'] for row in selected)-4440.27) < .001
+    assert abs(1000/(20*.8)-62.5) < 1e-9
+    assert round(20*.8*8000/(200+24)) == 571
+    citations = set()
+    for group in re.findall(r'\[([\d, –-]+)\]', text):
+        for item in group.split(','):
+            bounds = re.split('[–-]', item.strip())
+            citations.update(range(int(bounds[0]), int(bounds[-1])+1))
+    references = set(map(int, re.findall(r'^\[(\d+)\]', text, re.M)))
+    assert citations == references == set(range(1, 39)), (citations, references)
+    assert 'Предложение научному руководителю' not in text
+    with fitz.open(OUT) as doc:
+        toc = doc.get_toc()
+        assert len(toc) == 13, toc
+        toc_links = doc[1].get_links()
+        assert len(toc_links) == 13, len(toc_links)
+        destinations = [int(link['page']) if link['kind'] == 4 else link['page']+1
+                        for link in toc_links]
+        assert destinations == [item[2] for item in toc], (destinations, toc)
+        for page in doc:
+            extracted = page.get_text()
+            assert '<!--' not in extracted
+            assert '\ufffd' not in extracted
+            for block in page.get_text('blocks'):
+                assert block[0] >= 0 and block[1] >= 0, (page.number, block)
+                assert block[2] <= page.rect.width+.5 and block[3] <= page.rect.height+.5, (page.number, block)
+        print('PASS: 38 references, 13 TOC links, market calculations, PDF text bounds')
 
 
 if __name__ == '__main__':

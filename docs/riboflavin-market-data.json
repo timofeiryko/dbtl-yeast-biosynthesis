@@ -1,0 +1,56 @@
+{
+  "retrieved_on": "2026-11-23",
+  "scope": "HS 293623 includes riboflavin and its derivatives, unmixed; trade weight is not pure B2 equivalent. Values are reported trade, not end-market consumption.",
+  "world_exports_2024": {
+    "source": "https://wits.worldbank.org/trade/comtrade/en/country/ALL/year/2024/tradeflow/Exports/partner/WLD/product/293623",
+    "note": "Selected top five country reporters; EU aggregate excluded; re-exports included.",
+    "rows": [
+      {"country": "Китай", "usd_thousand": 99076.29, "kg": 5244070},
+      {"country": "Германия", "usd_thousand": 95292.41, "kg": 4322230},
+      {"country": "Нидерланды", "usd_thousand": 61194.65, "kg": 2885360},
+      {"country": "Южная Корея", "usd_thousand": 50031.36, "kg": 2744590},
+      {"country": "Франция", "usd_thousand": 11606.74, "kg": 400018}
+    ]
+  },
+  "russia_imports_2021": {
+    "source": "https://wits.worldbank.org/trade/comtrade/en/country/RUS/year/2021/tradeflow/Imports/partner/ALL/product/293623",
+    "usd_thousand": 5045.51,
+    "kg": 277273,
+    "note": "Reporter Russia, world total; do not splice into mirror-export time series."
+  },
+  "china_exports_to_russia": {
+    "source_template": "https://wits.worldbank.org/trade/comtrade/en/country/All/year/{year}/tradeflow/Exports/partner/RUS/product/293623",
+    "rows": [
+      {"year": 2022, "usd_thousand": 1645.45, "kg": 115450},
+      {"year": 2023, "usd_thousand": 2780.48, "kg": 222771},
+      {"year": 2024, "usd_thousand": 2984.31, "kg": 229573}
+    ]
+  },
+  "selected_exports_to_russia_2024": {
+    "source": "https://wits.worldbank.org/trade/comtrade/en/country/All/year/2024/tradeflow/Exports/partner/RUS/product/293623",
+    "note": "China + EU aggregate + India: selected non-overlapping reporter groups; not complete Russian imports. EU member states must not be added again.",
+    "rows": [
+      {"country": "Китай", "usd_thousand": 2984.31, "kg": 229573},
+      {"country": "ЕС", "usd_thousand": 1044.14, "kg": 49803},
+      {"country": "Индия", "usd_thousand": 411.82, "kg": 4291}
+    ]
+  },
+  "fefac_regional_shares": {
+    "source": "https://fefac.eu/wp-content/uploads/2025/11/Fact-sheet-vulnerability-PUBLIC_rev20251118.pdf",
+    "note": "FEFAC factsheet November 2025; regional baseline year not explicit on B2 panel. Industry estimates, not current audited plant output.",
+    "rows": [
+      {"region": "Китай", "capacity_pct": 63, "production_pct": 47},
+      {"region": "Южная Корея", "capacity_pct": 15, "production_pct": 27},
+      {"region": "ЕС", "capacity_pct": 22, "production_pct": 26}
+    ]
+  },
+  "vega_price_observations": {
+    "basis": "USD/kg commercial product, FOB, supplier commentary; not executed quotes to Russia",
+    "rows": [
+      {"period": "Сентябрь 2025", "assay_pct": 80, "low": 11, "high": 11, "source": "https://www.vegapharma.com/uploads/20251011/VEGA%20Vitamin%20Market%20Monthly%20Report%20Of%20Sept%202025.pdf"},
+      {"period": "Сентябрь 2025", "assay_pct": 98, "low": 32, "high": 45, "source": "https://www.vegapharma.com/uploads/20251011/VEGA%20Vitamin%20Market%20Monthly%20Report%20Of%20Sept%202025.pdf"},
+      {"period": "Март 2026", "assay_pct": 80, "low": 10, "high": 11, "source": "http://vegapharma.com/uploads/20260401/VEGA%20Vitamin%20Market%20Monthly%20Report%20Of%20Mar%202026.pdf"},
+      {"period": "Март 2026", "assay_pct": 98, "low": 28, "high": 50, "source": "http://vegapharma.com/uploads/20260401/VEGA%20Vitamin%20Market%20Monthly%20Report%20Of%20Mar%202026.pdf"}
+    ]
+  }
+}
