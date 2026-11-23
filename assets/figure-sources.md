@@ -12,3 +12,8 @@
 - `riboflavin-sampling.png` — схема параллельного отбора проб для контроля материального баланса.
 - `riboflavin-denovo-pathway.png` — схема биосинтеза рибофлавина de novo в дрожжах с указанием генов *C. famata* и *K. phaffii* и ключевых мишеней DBTL.
 - `riboflavin-pathway.png` — схема последовательных ферментативных превращений B2 → FMN → FAD на базе 2D-структур.
+
+## Графики и схемы отчёта по фосфолипазе C (PLC)
+
+- `plc-benchmarks.png`, `plc-oil-production-rf.png`, `plc-reactor-economics.png` — строятся скриптом `scripts/build_plc_report.py` по структурированным данным `docs/plc-market-data.json` (OleoScope / Масложировой союз России, Val et al. 2023–2025, Elena et al. 2016–2017, Marchisio et al. 2022).
+- `plc-reaction-scheme.png`, `plc-assay-workflow.png`, `plc-dbtl-architecture.png` — оригинальные инженерные блок-схемы механизма PLC vs PLA1, трёхуровневой аналитической воронки (`p-NPPC` + AOCS Ca 12-55) и двухконтурного AI-DBTL в *K. phaffii*.

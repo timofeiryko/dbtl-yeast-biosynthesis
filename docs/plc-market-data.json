@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "updated": "2026-11-23",
+    "notes": "Verified Russian vegetable oil production statistics (OleoScope / Maslozhirovoy Soyuz Rossii / Rosstat) and literature PLC degumming benchmarks (Val et al. 2023-2025, Elena et al. 2016-2017, Marchisio et al. 2022, Zhang et al. 2022)."
+  },
+  "russia_vegetable_oils_mln_t": {
+    "source": "OleoScope / Масложировой союз России (2025–2026)",
+    "seasons": [
+      {
+        "season": "2023/24",
+        "sunflower": 7.806,
+        "rapeseed": 1.240,
+        "soybean": 1.075,
+        "other": 0.021,
+        "total": 10.142
+      },
+      {
+        "season": "2024/25",
+        "sunflower": 6.940,
+        "rapeseed": 1.435,
+        "soybean": 1.078,
+        "other": 0.018,
+        "total": 9.471
+      },
+      {
+        "season": "2025/26",
+        "sunflower": 7.300,
+        "rapeseed": 1.800,
+        "soybean": 1.100,
+        "other": 0.200,
+        "total": 10.400
+      }
+    ]
+  },
+  "plc_temperature_benchmarks": {
+    "source": "Val et al. (2023, 2025), Elena et al. (2017), Marchisio et al. (2022), Zhang et al. (2022)",
+    "variants": [
+      {
+        "label": "Purifine PLC\n(DSM, K. phaffii)",
+        "temp_c": 55,
+        "time_min": 120,
+        "dose_mg_kg": 5.0,
+        "category": "commercial"
+      },
+      {
+        "label": "BcPLC-F66Y\n(Elena 2017, K. phaffii)",
+        "temp_c": 55,
+        "time_min": 120,
+        "dose_mg_kg": 5.0,
+        "category": "reference"
+      },
+      {
+        "label": "chPLC\n(Val 2023, C. glut.)",
+        "temp_c": 80,
+        "time_min": 30,
+        "dose_mg_kg": 3.0,
+        "category": "benchmark"
+      },
+      {
+        "label": "TkPLC\n(Marchisio 2022, K. phaffii)",
+        "temp_c": 80,
+        "time_min": 60,
+        "dose_mg_kg": 4.0,
+        "category": "benchmark"
+      },
+      {
+        "label": "Цель проекта\n(AI-DBTL, K. phaffii)",
+        "temp_c": 80,
+        "time_min": 30,
+        "dose_mg_kg": 3.0,
+        "category": "target"
+      }
+    ]
+  },
+  "reactor_1m3_scenarios": {
+    "annual_hours": 8000,
+    "cycle_hours": 96,
+    "turnaround_hours": 24,
+    "recovery": 0.80,
+    "dose_g_per_t_oil": 3.0,
+    "titers_g_l": [1.0, 4.5, 10.0]
+  },
+  "mez_economics_150kt": {
+    "annual_oil_t": 150000,
+    "oil_price_usd_t": 900,
+    "extra_yield_pct": 1.5,
+    "enzyme_cost_low_usd_m": 0.30,
+    "enzyme_cost_high_usd_m": 0.60
+  }
+}
