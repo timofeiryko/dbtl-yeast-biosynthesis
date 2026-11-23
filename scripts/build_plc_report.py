@@ -653,7 +653,7 @@ def validate_report(text):
             bounds = re.split('[–-]', item.strip())
             citations.update(range(int(bounds[0]), int(bounds[-1]) + 1))
     references = set(map(int, re.findall(r'^\[(\d+)\]', refs_part, re.M)))
-    assert citations == references == set(range(1, 34)), (citations - references, references - citations)
+    assert citations == references == set(range(1, 36)), (citations - references, references - citations)
 
     for forbidden in ('HVO', 'SAF', 'биотоплив'):
         assert forbidden.lower() not in text.lower(), f'Forbidden term leaked: {forbidden}'
