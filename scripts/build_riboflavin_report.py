@@ -523,7 +523,7 @@ def validate_report(text):
             bounds = re.split('[–-]', item.strip())
             citations.update(range(int(bounds[0]), int(bounds[-1]) + 1))
     references = set(map(int, re.findall(r'^\[(\d+)\]', refs_part, re.M)))
-    assert citations == references == set(range(1, 39)), (citations - references, references - citations)
+    assert citations == references == set(range(1, 43)), (citations - references, references - citations)
     assert 'Предложение научному руководителю' not in text
     assert 'Редакция 2' not in text
     with fitz.open(OUT) as doc:
@@ -542,7 +542,7 @@ def validate_report(text):
             for block in page.get_text('blocks'):
                 assert block[0] >= 0 and block[1] >= 0, (page.number, block)
                 assert block[2] <= page.rect.width + .5 and block[3] <= page.rect.height + .5, (page.number, block)
-        print(f'PASS: 38 cited references, 13 TOC links on page 1, market calculations, {len(doc)} pages verified')
+        print(f'PASS: {len(references)} cited references, 13 TOC links on page 1, market calculations, {len(doc)} pages verified')
 
 
 if __name__ == '__main__':
